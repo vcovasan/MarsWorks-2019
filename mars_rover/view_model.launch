@@ -1,0 +1,7 @@
+<launch>
+  <node name="xacro" pkg="xacro" type="xacro" output="screen" args="--inorder -o $(find rover_description)/urdf/model.urdf $(find rover_description)/urdf/rover.xacro"/>
+
+  <include file="$(find urdf_tutorial)/launch/display.launch">
+    <arg name="model" value="../urdf/model.urdf"/>
+  </include>
+</launch>

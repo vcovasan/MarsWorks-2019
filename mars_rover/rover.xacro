@@ -1,0 +1,315 @@
+<?xml version="1.0"?>
+<robot name="rover" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:property name="PI" value="3.1415926535897931"/>
+
+  <xacro:property name="chassisHeight" value="0.3"/>
+  <xacro:property name="chassisLength" value="0.75"/>
+  <xacro:property name="chassisWidth" value="0.45"/>
+  <xacro:property name="chassisMass" value="50"/>
+
+  <!--stick out 0.285 wheel drop = 0.12-->
+  <xacro:property name="wheelWidth" value="0.075"/>
+  <xacro:property name="wheelRadius" value="0.18"/>
+  <xacro:property name="wheelPos" value="0.3"/>
+  <xacro:property name="wheelMass" value="5"/>
+  <xacro:property name="wheelDrop" value="-0.12"/>
+
+  <xacro:property name="cameraSize" value="0.05"/>
+  <xacro:property name="cameraMass" value="0.1"/>
+  <xacro:property name="link_name" value="depth"/>
+  <xacro:property name="frame_name" value="camera_link"/>
+  <xacro:property name="camera_name" value="camera"/>
+
+  <xacro:include filename="$(find rover_description)/urdf/rover.gazebo"/>
+  <xacro:include filename="$(find rover_description)/urdf/materials.xacro"/>
+  <xacro:include filename="$(find rover_description)/urdf/macros.xacro"/>
+  <!--xacro:include filename="$(find rover_description)/urdf/arm.xacro"/-->
+
+  <xacro:property name="plateLength" value="0.180"/>
+  <xacro:property name="plateWidth" value="0.25"/>
+  <xacro:property name="plateMass" value="0.267"/>
+  <xacro:property name="plateHeight" value="0.006"/>
+  <xacro:property name="baseHeight" value="0.0635"/>
+  <xacro:property name="baseRadius" value="0.12"/>
+  <xacro:property name="arm_link_1Length" value="0.36"/>
+  <xacro:property name="arm_link_2Length" value="0.5"/>
+  <xacro:property name="chassisWidth" value="0.45"/>
+  <xacro:property name="baseDamping" value="1"/>
+  <xacro:property name="sidePlateLenght" value="0.25"/>
+  <xacro:property name="sidePlateWidth" value="0.05"/>
+  <xacro:property name="sidePlateHeight" value="0.165"/>
+  <xacro:property name="arm_link_1Length" value="0.36"/>
+  <xacro:property name="arm_link_1Radius" value="0.08"/>
+  <xacro:property name="sidePlate2arm_link_1Damping" value="1"/>
+  <xacro:property name="arm_link_2Length" value="0.5"/>
+  <xacro:property name="arm_link_2Radius" value="0.05"/>
+  <xacro:property name="excavatorLenght" value="0.005"/>
+  <xacro:property name="excavatorWidth" value="0.078"/>
+  <xacro:property name="excavatorHeight" value="0.078"/>
+
+  <link name="base_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${chassisLength} ${chassisWidth} ${chassisHeight}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${chassisLength} ${chassisWidth} ${chassisHeight}"/>
+      </geometry>
+      <material name="green"/>
+    </visual>
+
+<!--
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="${chassisMass}"/>
+      <box_inertia m="${chassisMass}" x="${chassisLength}" y="${chassisWidth}" z="${chassisHeight}"/>
+    </inertial>
+-->
+
+  </link>
+
+  <wheel lr="front_left" tY="1" tX="1"/>
+  <wheel lr="front_right" tY="-1" tX="1"/>
+  <wheel lr="back_left" tY="1" tX="-1"/>
+  <wheel lr="back_right" tY="-1" tX="-1"/>
+
+  <joint name="camera_joint" type="fixed">
+    <axis xyz="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+    <origin xyz="${chassisLength/2} 0 ${chassisHeight/2}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="camera_link">
+    <collision>
+      <origin xyz="0 0 0.025" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.1 0.05"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0.025" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.1 0.05"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <inertial>
+      <mass value="1e-5"/>
+      <origin xyz="0 0 0.025" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="1e-6" ixz="1e-6" iyy="1e-6" iyz="1e-6" izz="1e-6"/>
+    </inertial>
+  </link>
+
+  <joint name="arm_joint_0" type="revolute">
+    <axis xyz="0 0 1"/>
+    <parent link="base_link"/>
+    <child link="arm_base_link"/>
+    <limit lower="-2" upper="2" effort="1" velocity="2"/>
+    <origin xyz="0 0 ${chassisHeight/2}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="arm_base_link">
+    <visual>
+      <origin xyz="0 0 ${baseHeight/2}" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${baseHeight}" radius="${baseRadius}"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <mass value="${wheelMass}"/>
+      <origin xyz="0 0 ${baseHeight/2}" rpy="0 0 0"/>
+      <cylinder_inertia m="${wheelMass}" r="${wheelRadius}" h="${wheelWidth}"/>
+
+    </inertial>
+
+    <collision>
+      <origin xyz="0 0 ${baseHeight/2}" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${baseHeight}" radius="${baseRadius}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <transmission name="arm_joint_0_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="arm_joint_0">
+      <hardwareInterface>PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="arm_joint_0_Motor">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>10</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <joint name="joint_base_side_plate" type="fixed">
+    <parent link="arm_base_link"/>
+    <child link="side_plate"/>
+    <origin xyz="0 0 ${baseHeight}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="side_plate">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.130"/>
+      <!--box_inertia m="0.130" x="${sidePlateLenght}" y="${sidePlateWidth}" z="${sidePlateHeight}"/-->
+      <box_inertia m="0.130" x="${sidePlateLenght}" y="${sidePlateWidth}" z="${sidePlateHeight}"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 ${sidePlateHeight/2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${sidePlateLenght} ${sidePlateWidth} ${sidePlateHeight}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${sidePlateHeight/2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${sidePlateLenght} ${sidePlateWidth} ${sidePlateHeight}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <transmission name="joint_base_side_plate_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_base_side_plate">
+      <hardwareInterface>PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="arm_joint_0_Motor">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>10</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <joint name="arm_joint_1" type="revolute">
+    <parent link="side_plate"/>
+    <child link="arm_link_1"/>
+    <axis xyz=" 0 1 0"/>
+    <origin xyz="0 0  ${sidePlateHeight}" rpy="0 0 0"/>
+    <dynamics damping="${sidePlate2arm_link_1Damping}"/>
+    <limit effort="100.0" velocity="0.5" lower="-1.571" upper="1.571"/>
+  </joint>
+
+  <link name="arm_link_1">
+    <visual>
+      <origin xyz="0 0 ${arm_link_1Length/2}" rpy="0 0 0"/>
+      <material name="black"/>
+      <geometry>
+        <cylinder length="${arm_link_1Length}" radius="${arm_link_1Radius}"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${arm_link_1Length/2}" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${arm_link_1Length}" radius="${arm_link_1Radius}"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.416 0 0.154" rpy="0 0 0"/>
+      <mass value="2"/>
+      <cylinder_inertia m="2" r="${arm_link_1Radius}" h="${arm_link_1Length}"/>
+    </inertial>
+  </link>
+
+  <transmission name="arm_link_1_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="arm_link_1">
+      <hardwareInterface>PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="arm_link_1_Motor">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>10</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <joint name="arm_joint_2" type="revolute">
+    <parent link="arm_link_1"/>
+    <child link="arm_link_2"/>
+    <axis xyz=" 0 1 0"/>
+    <origin xyz="0 0 ${arm_link_1Length}" rpy="0 0 0"/>
+    <dynamics damping="${sidePlate2arm_link_1Damping}"/>
+    <limit effort="100.0" velocity="0.5" lower="-1.571" upper="1.571"/>
+  </joint>
+
+  <link name="arm_link_2">
+    <visual>
+      <origin xyz="0 0 ${arm_link_2Length/2}" rpy="0 0 0"/>
+      <material name="black"/>
+      <geometry>
+        <cylinder length="${arm_link_2Length}" radius="${arm_link_2Radius}"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${arm_link_2Length/2}" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${arm_link_2Length}" radius="${arm_link_2Radius}"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.5 0 0.5" rpy="0 0 0"/>
+      <mass value="1"/>
+      <cylinder_inertia m="1" r="${arm_link_2Radius}" h="${arm_link_2Length}"/>
+    </inertial>
+  </link>
+
+  <transmission name="arm_link_2_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="arm_link_2">
+      <hardwareInterface>PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="arm_link_2_Motor">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>10</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <joint name="arm_joint_3" type="revolute">
+    <parent link="arm_link_2"/>
+    <child link="end_effector"/>
+    <axis xyz=" 0 1 0"/>
+    <origin xyz="0 0 ${arm_link_2Length}" rpy="0 0 0"/>
+    <dynamics damping="${sidePlate2arm_link_1Damping}"/>
+    <limit effort="100.0" velocity="0.5" lower="-1.571" upper="1.571"/>
+  </joint>
+
+  <link name="end_effector">
+    <inertial>
+      <origin xyz="0 0 1.0945" rpy="0 0 0"/>
+      <mass value="0.1"/>
+      <box_inertia m="0.1" x="${excavatorLenght}" y="${excavatorWidth}" z="${excavatorHeight}"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 ${excavatorHeight/2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${excavatorLenght} ${excavatorWidth} ${excavatorHeight}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${excavatorHeight/2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${excavatorLenght} ${excavatorWidth} ${excavatorHeight}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <transmission name="arm_link_3_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="arm_link_3">
+      <hardwareInterface>PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="arm_link_3_Motor">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>10</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  
+
+</robot>
