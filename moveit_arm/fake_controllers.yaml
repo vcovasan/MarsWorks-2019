@@ -1,0 +1,10 @@
+controller_list:
+  - name: fake_arm_controller
+    joints:
+      - arm_joint_0
+      - arm_joint_1
+      - arm_joint_2
+      - arm_joint_3
+  - name: fake_bucket_controller
+    joints:
+      - arm_joint_3
