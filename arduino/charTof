@@ -1,0 +1,35 @@
+#include <Wire.h>
+#include <VL6180X.h>
+
+VL6180X sensor;
+
+void setup() 
+{
+  Serial.begin(115200);
+  Wire.begin();
+  
+  sensor.init();
+  sensor.configureDefault();
+  sensor.setTimeout(500);
+}
+
+void loop() 
+{ 
+  uint16_t value = sensor.readRangeSingleMillimeters();
+  unsigned char msg[2];
+  //valueInt = int(value);
+  //Serial.println(valueInt);
+  
+  //Serial.println(value);
+  msg[0] = value & 0xFF;
+  msg[1] = value >> 8;
+  //uint16_t newValue = low | uint16_t(high) << 8;
+  Serial.print(msg[0]);
+  Serial.println(msg[1]);
+  
+  //Serial.print(high);
+  
+  if (sensor.timeoutOccurred()) { Serial.print(" TIMEOUT"); }
+  
+  
+}
