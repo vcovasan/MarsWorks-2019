@@ -38,6 +38,7 @@
 
 // Initialise CAN variables
 long unsigned int rx_address;
+long unsigned int ext;
 unsigned char len = 0;
 unsigned char buf[8];
 const long unsigned int tx_1_address = IDTX1;
@@ -66,8 +67,8 @@ MCP_CAN CAN(SPI_CS_PIN);
  * Package sensor readings into a message and send to the CAN bus
  */
 void transmitData() {
-  char* int_char_depth = (void*)(uint16_t*)(&depth);
-  char* float_char_temp = (void*)(float*)(&temperature);
+  char* int_char_depth = (void*)(&depth);
+  char* float_char_temp = (void*)(&temperature);
   tx_1_buf[0] = int_char_depth[0];
   tx_1_buf[1] = int_char_depth[1];
   tx_1_buf[2] = int_char_depth[2];
@@ -77,8 +78,8 @@ void transmitData() {
   tx_1_buf[6] = float_char_temp[2];
   tx_1_buf[7] = float_char_temp[3];
   CAN.sendMsgBuf(tx_1_address, 1, 8, tx_1_buf);
-  char* float_char_humidity = (void*)(float*)(&humidity);
-  char* int_char_moisture = (void*)(uint16_t*)(&moisture);
+  char* float_char_humidity = (void*)(&humidity);
+  char* int_char_moisture = (void*)(&moisture);
   tx_2_buf[0] = float_char_humidity[0];
   tx_2_buf[1] = float_char_humidity[1];
   tx_2_buf[2] = float_char_humidity[2];
@@ -88,7 +89,7 @@ void transmitData() {
   tx_2_buf[6] = int_char_moisture[2];
   tx_2_buf[7] = int_char_moisture[3];
   CAN.sendMsgBuf(tx_2_address, 1, 8, tx_2_buf);
-  char* float_char_weight = (void*)(float*)(&weight);
+  char* float_char_weight = (void*)(&weight);
   tx_3_buf[0] = float_char_humidity[0];
   tx_3_buf[1] = float_char_humidity[1];
   tx_3_buf[2] = float_char_humidity[2];
@@ -100,8 +101,7 @@ void transmitData() {
  * Read and handle messages from the can bus relevant to this controller
  */
 void receiveCAN() {
-  CAN.readMsgBuf(&len, buf);
-  rx_address = CAN.updateCanId();
+  CAN.readMsgBuf(&rx_address,&ext, &len, buf);
   switch (rx_address) {
     case 0x1BEEF001: //emergency stop destination
       break;
