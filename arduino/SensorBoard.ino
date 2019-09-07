@@ -1,20 +1,20 @@
-/* SensorBoard.ino 
- * Written by Luke Bentley-Fox
- * 
- * This file is flashed to the Arduino Leonardo on the tofSensor board which is
- * connected to the main controller via CAN. 
- * 
- * ASSUMED MSG FORMAT FOR DESTINATION 0x1BEEF019
- * byte1 - lid open state
- *  0 - close
- *  1 - open
- * byte2 - lid lock state
- *  0 ignore
- *  1 unlock
- *  2 lock
- * byte3 - datarequestState  
- *  0 ignore
- *  1 sendData
+/* SensorBoard.ino
+   Written by Luke Bentley-Fox
+
+   This file is flashed to the Arduino Leonardo on the tofSensor board which is
+   connected to the main controller via CAN.
+
+   ASSUMED MSG FORMAT FOR DESTINATION 0x1BEEF019
+   byte1 - lid open state
+    0 - close
+    1 - open
+   byte2 - lid lock state
+    0 ignore
+    1 unlock
+    2 lock
+   byte3 - datarequestState
+    0 ignore
+    1 sendData
  **/
 #include <SPI.h>
 #include <mcp_can.h> //CAN library
@@ -23,22 +23,22 @@
 #include <Servo.h>   //Servo library
 
 // Define CAN addresses
-#define IDRX  0x1BEEF019;
-#define IDTX1 0x1BEEF023;
-#define IDTX2 0x1BEEF024;
-#define IDTX3 0x1BEEF025;
+#define IDRX  0x1BEEF019
+#define IDTX1 0x1BEEF023
+#define IDTX2 0x1BEEF024
+#define IDTX3 0x1BEEF025
 
 // Define actuator pins
-#define S1 13; // door servo
-#define S2 14; // lock servo
+#define S1 13 // door servo
+#define S2 14 // lock servo
 
 // Define sensors pins
-#define TS 25; // temp/humi
-#define MS 24; // moisture
+#define TS 25 // temp/humi
+#define MS 24 // moisture
 
 // Initialise CAN variables
 long unsigned int rx_address;
-long unsigned int ext;
+uint8_t ext;
 unsigned char len = 0;
 unsigned char buf[8];
 const long unsigned int tx_1_address = IDTX1;
@@ -60,12 +60,12 @@ float humidity;
 uint16_t moisture;
 float weight;
 
-const int SPI_CS_PIN = 15; 
+const int SPI_CS_PIN = 15;
 MCP_CAN CAN(SPI_CS_PIN);
 
 /**
- * Package sensor readings into a message and send to the CAN bus
- */
+   Package sensor readings into a message and send to the CAN bus
+*/
 void transmitData() {
   char* int_char_depth = (void*)(&depth);
   char* float_char_temp = (void*)(&temperature);
@@ -98,40 +98,41 @@ void transmitData() {
 }
 
 /**
- * Read and handle messages from the can bus relevant to this controller
- */
+   Read and handle messages from the can bus relevant to this controller
+*/
 void receiveCAN() {
-  CAN.readMsgBuf(&rx_address,&ext, &len, buf);
+  char desiredOpenState = buf[0];
+  char desiredLockState = buf[1];
+  char requestingData = buf[2];
+  CAN.readMsgBuf(&rx_address, &ext, &len, buf);
   switch (rx_address) {
     case 0x1BEEF001: //emergency stop destination
       break;
     case 0x1BEEF002: //reset destination
       break;
     case IDRX: // us!
-      char desiredOpenState = buf[0];
       switch (desiredOpenState) {
-        case 0: // unlock lid
+        case 0: // open lid
           lidServo.writeMicroseconds(1000); // CALIBRATE
-        break;
-        case 1: // lock lid
+          break;
+        case 1: // close lid
           lidServo.writeMicroseconds(2000); // CALIBRATE
-        break;
+          break;
         default:
-        break;
+          break;
       }
-      char desiredLockState = buf[1];
       switch (desiredLockState) {
         case 1: // unlock the lid
           lockServo.writeMicroseconds(2000); // CALIBRATE
-        break;
+          break;
         case 2: // lock the lid
-        lockServo.writeMicroseconds(1000); // CALIBRATE
-        break;
+          lockServo.writeMicroseconds(1000); // CALIBRATE
+          break;
         default:
-        break;        
+          break;
       }
-      char requestingData = buf[2];
-      if (requestingData == '1'){
+
+      if (requestingData == '1') {
         transmitData();
       }
       break;
@@ -143,7 +144,7 @@ void receiveCAN() {
 void setup() {
   pinMode(SPI_CS_PIN, OUTPUT);
   digitalWrite(SPI_CS_PIN, LOW);
-  while (CAN_OK != CAN.begin(CAN_250KBPS)) {
+  while (CAN_OK != CAN.begin(MCP_ANY, CAN_250KBPS, MCP_16MHZ)) {
     delay(200);
   }
   Wire.begin();
