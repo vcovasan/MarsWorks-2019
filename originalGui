@@ -1,0 +1,191 @@
+from time import sleep
+import serial
+from serial import Serial
+import signal
+from xbox360controller import Xbox360Controller
+
+def get_mapped_name(inname):
+    if inname == "button_trigger_r":
+        name = "button_white"
+    elif inname == "button_trigger_l":
+        name = "button_y"
+    elif inname == "button_x":
+        name = "button_black"
+    elif inname == "button_y":
+        name = "button_x"
+    elif inname == "button_select":
+        name = "button_back"
+    else:
+        name = inname
+    return name
+
+
+def on_button_pressed(button):
+    print('Button {0} was pressed'.format(button.name))
+    print('Button {0} was pressed'.format(get_mapped_name(button.name)))
+
+
+def on_button_released(button):
+    print('Button {0} was released'.format(button.name))
+    print('Button {0} was released'.format(get_mapped_name(button.name)))
+
+def on_axis_moved(axis):
+    print('Axis {0} moved to {1} {2}'.format(axis.name, axis.x, axis.y))
+
+ser = serial.Serial('/dev/ttyACM0', 115200) 
+
+while(1):
+roverMode = input("Enter the rover command(wheel/arm/box):")
+try:
+with Xbox360Controller(0, axis_threshold=0.2) as controller:
+if roverMode == "wheel":
+ser.write('w'.encode())
+while((controller.button_mode.is_pressed)==False):
+if(controller.axis_l.y < 0): # y axis inverted, going forward
+ser.write('f'.encode())
+sleep(0.1)
+forwardVelocity = str(round(abs(controller.axis_l.y))*10)
+ser.write(forwardVelocity.encode())
+print("Rover going forward")
+
+if(controller.axis_l.y > 0):
+ser.write('b'.encode())
+sleep(0.1)
+backwardVelocity = str(round(controller.axis_l.y)*10)
+ser.write(forwardVelocity.encode())
+print("Rover going backward")
+
+if(controller.axis_l.x > 0):
+ser.write('r'.encode())
+sleep(0.1)
+rightVelocity = str(round(abs(controller.axis_l.x))*10)
+ser.write(rightVelocity.encode())
+print("Rover going right")
+
+if(controller.axis_l.x < 0):
+ser.write('l'.encode())
+sleep(0.1)
+leftVelocity = str(round(controller.axis_l.x)*10)
+ser.write(leftVelocity.encode())
+print("Rover going left")
+
+if roverMode == 'arm':
+ser.write('a'.encode())
+while((controller.button_mode.is_pressed) == False):
+ser.flushInput()
+ser.flushOutput() 
+if((controller.button_x.is_pressed) == True):
+ser.write('1'.encode())
+sleep(0.1)
+print('Base rotating clockwise')
+else:
+ser.write('0'.encode()) # on the arduino side: if jointX = 0 then joint[i]=joint[i-1](stays the same)
+if((controller.button_b.is_pressed) == True):
+ser.write('-1'.encode())
+sleep(0.1)
+print('Base rotating counterclockwise')
+else:
+ser.write('0'.encode())
+
+joint2pwm=str(round(-controller.axis_l.y)*9)
+ser.write(joint2pwm.encode())
+if(joint2pwm!='0'):
+print("Joint 2 PWM: {0}".format(joint2pwm))
+sleep(0.1)
+joint3pwm=str(round(controller.axis_r.y)*9)
+ser.write(joint3pwm.encode())
+if(joint3pwm!='0'):
+print("Joint 3 PWM: {0}".format(joint3pwm))
+sleep(0.1)
+#print('Joint2 pwm is {0} m/s'.format(-joint2pwm*100))
+#print('Joint3 pwm is {0} m/s'.format(-joint3pwm*100))
+#joint4pwm=controller.hat.y #test this one properly, it might not be hat.x 
+#joint5pwm=controller.button_start.is_pressed #/back
+if(controller.hat.y==-1): # check if it is -1(int) or -1 the char
+ser.write('-1'.encode())
+print('Joint 4 down')
+sleep(0.1)
+else:
+ser.write('0'.encode())
+if(controller.hat.y==1):
+ser.write('1'.encode())
+print('Joint 4 up')
+sleep(0.1)
+else:
+ser.write('0'.encode())
+if(controller.button_select.is_pressed): #used to be button_back
+ser.write('-1'.encode())
+print('Joint 5 down')
+sleep(0.1)
+else:
+ser.write('0'.encode())
+if(controller.button_start.is_pressed):
+ser.write('1'.encode())
+print('Joint 5 up')
+sleep(0.1)
+else:
+ser.write('0'.encode())
+#end effector
+if(controller.trigger_l.value==1):
+ser.write('-1'.encode())
+print('Fingers closing')
+sleep(0.1)
+else:
+ser.write('0'.encode())
+if(controller.trigger_r.value==1):
+ser.write('1'.encode())
+print('Fingers opening')
+sleep(0.1)
+else:
+ser.write('0'.encode())
+ser.write('q'.encode())
+
+elif roverMode == 'box':
+ser.write('b'.encode()) 
+while((controller.button_mode.is_pressed)==False):
+boxType = input('Scientific or Container(s?c)')
+ser.write(boxType.encode())
+if(boxType=="s"):
+scientificBoxNumber=input('Which scientific box(1/2/3)')
+ser.write(scientificBoxNumber.encode())
+if(scientificBoxNumber=='1'):
+print('First scientific box opening')
+sleep(0.1)
+close1=input('close?(y/n)')
+if(close1=='y'):
+ser.write('l'.encode())
+if(scientificBoxNumber=='2'):
+print('Second scientific box opening')
+sleep(0.1)
+close2=input('close?(y/n)')
+if(close2=='y'):
+ser.write('l'.encode()) # not c
+if(scientificBoxNumber=='3'):
+print('Third scientific box opening')
+sleep(0.1)
+close3=input('close?(y/n)')
+if(close3=='y'):
+ser.write('l'.encode())
+if(boxType=='c'):
+containerBoxNumber=input('Which container box?(1/2)')
+ser.write(containerBoxNumber.encode())
+if(containerBoxNumber=='1'):
+print('First container box opening')
+sleep(0.1)
+close1=input('close?(y/n)')
+if(close1=='y'):
+ser.write('l'.encode())
+if(containerBoxNumber=='2'):
+print('Second container box opening')
+sleep(0.1)
+close1=input('close?(y/n)')
+if(close1=='y'):
+ser.write('l'.encode())
+# close all boxes
+except KeyboardInterrupt:
+   pass
+
+
+#ser.write(message.encode()) # Convert the decimal number to ASCII then send it to the Arduino
+#print(ser.readline()) # Read the newest output from the Arduino
+#sleep(.1) # Delay for one tenth of a second
