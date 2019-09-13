@@ -132,9 +132,13 @@ def frame_process(frame):
 
     ''' Perform contour analysis on the mask '''
 
-    (contours, _) = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    #(contours, _) = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     # OpenCV4 compatibility fix for OpenCV3
+    
+    ''' Perform contour analysis on the mask '''
+
+    (_,contours, _) = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     # contours = contours[1] if imutils.is_cv3() else contours[0]
 
