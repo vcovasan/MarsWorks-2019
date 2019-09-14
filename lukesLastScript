@@ -18,23 +18,24 @@ void setup() {
 }
 
 void loop() {
-  int packetSize = LoRa.parsePacket();
-  if (packetSize) {
-    switch ((char)LoRa.read()) {
-      case 'w':
-        forwardWheelMessages();
-        break;
-      case 'a':
-        forwardArmMessages();
-        break;
-      case 'c':
-        forwardCameraMessage();
-      case 'b':
-        forwardBoxMessages();
-      default:
-        break;
-    }
-  }
+  testCAMFeeds()
+//  int packetSize = LoRa.parsePacket();
+//  if (packetSize) {
+//    switch ((char)LoRa.read()) {
+//      case 'w':
+//        forwardWheelMessages();
+//        break;
+//      case 'a':
+//        forwardArmMessages();
+//        break;
+//      case 'c':
+//        forwardCameraMessage();
+//      case 'b':
+//        forwardBoxMessages();
+//      default:
+//        break;
+//    }
+//  }
 }
 
 //who needs abstractions anyway
@@ -129,12 +130,61 @@ void forwardWheelMessages() {
   Serial3.write(0x00);
 }
 
-long unsigned int arm_tx_address;
-void forwardArmMessages() {
-  //Serial.write(0x12);
-  //Serial.write(0x13);
+long unsigned int arm_tx_address_1;
+long unsigned int arm_tx_address_2;
+long unsigned int arm_tx_address_3;
+void forwardArmMessages(){
 }
 
-void forwardCameraMessage() {}
+long unsigned int cam_tx_address = 0x1BEEF018;
+char* cam_address_ptr = (void*)(&cam_tx_address);
+void testCAMFeeds(){
+  for (int i = 0, i < 12, i++){
+    Serial1.write('!');
+    Serial1.write(cam_address_ptr[0]);
+    Serial1.write(cam_address_ptr[1]);
+    Serial1.write(cam_address_ptr[2]);
+    Serial1.write(cam_address_ptr[3]);
+    Serial1.write((char)i);
+    Serial1.write((char)i);
+    Serial1.write(0x00);
+    Serial1.write(0x00);
+    Serial1.write(0x00);
+    Serial1.write(0x00);
+    Serial1.write(0x00);
+    Serial1.write(0x00);
+
+    Serial3.write('!');
+    Serial3.write(cam_address_ptr[0]);
+    Serial3.write(cam_address_ptr[1]);
+    Serial3.write(cam_address_ptr[2]);
+    Serial3.write(cam_address_ptr[3]);
+    Serial3.write((char)i);
+    Serial3.write((char)i);
+    Serial3.write(0x00);
+    Serial3.write(0x00);
+    Serial3.write(0x00);
+    Serial3.write(0x00);
+    Serial3.write(0x00);
+    Serial3.write(0x00);
+    delay(1000)
+  }
+}
+void forwardCameraMessages(){
+  cam = (char)LoRa.read();
+  Serial1.write('!');
+  Serial1.write(cam_address_ptr[0]);
+  Serial1.write(cam_address_ptr[1]);
+  Serial1.write(cam_address_ptr[2]);
+  Serial1.write(cam_address_ptr[3]);
+  Serial1.write(cam);
+  Serial1.write(cam);
+  Serial1.write(0x00);
+  Serial1.write(0x00);
+  Serial1.write(0x00);
+  Serial1.write(0x00);
+  Serial1.write(0x00);
+  Serial1.write(0x00);
+}
 
 void forwardBoxMessages() {}
