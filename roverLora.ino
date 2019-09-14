@@ -6,7 +6,7 @@ void setup() {
   while (!Serial);
   Serial.println("LoRa Receiver");
   // configure LoRa
-  LoRa.setPins(35, 37, 12);
+  LoRa.setPins(35, 37, 10);
   LoRa.setSPIFrequency(1E6);
   LoRa.setSpreadingFactor(7);
   delay(1000);
@@ -17,36 +17,123 @@ void setup() {
   }
 }
 
-char unit;
 void loop() {
+  delay(2000);
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
-    Serial.print("Received packet '");
-    // read packet
-    for (int i = 0; i < packetSize; i++) {
-      unit = (char)LoRa.read();
-      Serial.print("Reading ")
-      Serial.print(unit)
-      Serial.println(" from LoRa")
-      if (i == 0) {
-        switch(unit){
-          case 'w':
-            //Serial.write(0xFF)
-            Serial.println("Handling 'w' case")
-            break;
-          case 'a':
-            break;
-          default:
-            break;
-        }
-      } 
-      Serial.print("Writing ")
-      Serial.print(unit)
-      Serial.println(" onto serial")
-      //Serial.write(buf)
+    switch((char)LoRa.read()) {
+      case 'w':
+        forwardWheelMessages();
+        break;
+      case 'a':
+        forwardArmMessages();
+        break;
+      case 'c':
+        forwardCameraMessage();
+      case 'b':
+        forwardBoxMessages();
+      default:
+        break;
     }
-    // print RSSI of packet
-    Serial.print("' with RSSI ");
-    Serial.println(LoRa.packetRssi());
-  }
+  } 
 }
+
+long unsigned int address;
+char direction;
+int mag = 0;
+int pwm = 0;
+void forwardWheelMessages(){
+  //left motors
+  address = 0x1BEEF005;
+  direction = (char)LoRa.read();
+  mag = (int)LoRa.read();
+  switch(direction){
+    case 'f':
+      pwm=(mag * 27;      
+      break;
+    case 'b':
+      pwm=(mag * -27;      
+      break;
+    default:
+      break;
+  }
+  char* address_ptr = (void*)(&address);
+  char* pwm_ptr = (void*)(&pwm);
+  Serial1.write('!');
+  Serial1.write(address_ptr[0]);
+  Serial1.write(address_ptr[1]);
+  Serial1.write(address_ptr[2]);
+  Serial1.write(address_ptr[3]);
+  Serial1.write(pwm_ptr[0]);
+  Serial1.write(pwm_ptr[1]);
+  Serial1.write(0x00);
+  Serial1.write(0x00);
+  Serial1.write(pwm_ptr[0]);
+  Serial1.write(pwm_ptr[1]);
+  Serial1.write(0x00);
+  Serial1.write(0x00);
+  Serial3.write('!');
+  Serial3.write(address_ptr[0]);
+  Serial3.write(address_ptr[1]);
+  Serial3.write(address_ptr[2]);
+  Serial3.write(address_ptr[3]);
+  Serial3.write(pwm_ptr[0]);
+  Serial3.write(pwm_ptr[1]);
+  Serial3.write(0x00);
+  Serial3.write(0x00);
+  Serial3.write(pwm_ptr[0]);
+  Serial3.write(pwm_ptr[1]);
+  Serial3.write(0x00);
+  Serial3.write(0x00);
+  //right motors
+  address = 0x1BEEF009;
+  direction = (char)LoRa.read();
+  mag = (int)LoRa.read();
+  switch(direction){
+    case 'f':
+      pwm=(mag * 27;      
+      break;
+    case 'b':
+      pwm=(mag * -27;      
+      break;
+    default:
+      break;
+  }
+  address_ptr = (void*)(&address);
+  pwm_ptr = (void*)(&pwm);
+  Serial1.write('!');
+  Serial1.write(address_ptr[0]);
+  Serial1.write(address_ptr[1]);
+  Serial1.write(address_ptr[2]);
+  Serial1.write(address_ptr[3]);
+  Serial1.write(pwm_ptr[0]);
+  Serial1.write(pwm_ptr[1]);
+  Serial1.write(0x00);
+  Serial1.write(0x00);
+  Serial1.write(pwm_ptr[0]);
+  Serial1.write(pwm_ptr[1]);
+  Serial1.write(0x00);
+  Serial1.write(0x00);
+  Serial3.write('!');
+  Serial3.write(address_ptr[0]);
+  Serial3.write(address_ptr[1]);
+  Serial3.write(address_ptr[2]);
+  Serial3.write(address_ptr[3]);
+  Serial3.write(pwm_ptr[0]);
+  Serial3.write(pwm_ptr[1]);
+  Serial3.write(0x00);
+  Serial3.write(0x00);
+  Serial3.write(pwm_ptr[0]);
+  Serial3.write(pwm_ptr[1]);
+  Serial3.write(0x00);
+  Serial3.write(0x00);
+}  
+
+void forwardArmMessages(){
+  //Serial.write(0x12);
+  Serial.write(0x13);
+}
+
+void forwardCameraMessages(){}
+
+void forwardCollectionMessages(){}
