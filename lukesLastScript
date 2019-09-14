@@ -19,23 +19,23 @@ void setup() {
 
 void loop() {
   testCAMFeeds()
-//  int packetSize = LoRa.parsePacket();
-//  if (packetSize) {
-//    switch ((char)LoRa.read()) {
-//      case 'w':
-//        forwardWheelMessages();
-//        break;
-//      case 'a':
-//        forwardArmMessages();
-//        break;
-//      case 'c':
-//        forwardCameraMessage();
-//      case 'b':
-//        forwardBoxMessages();
-//      default:
-//        break;
-//    }
-//  }
+  int packetSize = LoRa.parsePacket();
+  if (packetSize) {
+    switch ((char)LoRa.read()) {
+      case 'w':
+        forwardWheelMessages();
+        break;
+      case 'a':
+        forwardArmMessages();
+        break;
+      case 'c':
+        forwardCameraMessage();
+      case 'b':
+        forwardBoxMessages();
+      default:
+        break;
+    }
+  }
 }
 
 //who needs abstractions anyway
@@ -169,7 +169,7 @@ void testCAMFeeds(){
     delay(1000)
   }
 }
-void forwardCameraMessages(){
+void forwardCameraMessage(){
   cam = (char)LoRa.read();
   Serial1.write('!');
   Serial1.write(cam_address_ptr[0]);
