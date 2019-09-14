@@ -2,9 +2,10 @@
 #include <LoRa.h>
 
 void setup() {
-  Serial.begin(115200);
+  Serial1.begin(115200);
+  Serial3.begin(115200);
   while (!Serial);
-  Serial.println("LoRa Receiver");
+  //Serial.println("LoRa Receiver");
   // configure LoRa
   LoRa.setPins(35, 37, 10);
   LoRa.setSPIFrequency(1E6);
@@ -12,13 +13,12 @@ void setup() {
   delay(1000);
 
   if (!LoRa.begin(433E6)) {
-    Serial.println("Starting LoRa failed!");
+    //Serial.println("Starting LoRa failed!");
     while (1);
   }
 }
 
 void loop() {
-  delay(2000);
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
     switch((char)LoRa.read()) {
@@ -38,7 +38,8 @@ void loop() {
   } 
 }
 
-long unsigned int address;
+//who needs abstractions anyway
+long unsigned int motors_tx_address;
 char direction;
 int mag = 0;
 int pwm = 0;
@@ -47,17 +48,13 @@ void forwardWheelMessages(){
   address = 0x1BEEF005;
   direction = (char)LoRa.read();
   mag = (int)LoRa.read();
-  switch(direction){
-    case 'f':
-      pwm=(mag * 27;      
-      break;
-    case 'b':
-      pwm=(mag * -27;      
-      break;
-    default:
-      break;
+  if (direction == 'f' ){
+      pwm=(mag * 27);      
   }
-  char* address_ptr = (void*)(&address);
+  else if (direction =='b'){
+      pwm=(mag * -27);      
+  }
+  char* address_ptr = (void*)(&motors_tx_address);
   char* pwm_ptr = (void*)(&pwm);
   Serial1.write('!');
   Serial1.write(address_ptr[0]);
@@ -86,20 +83,16 @@ void forwardWheelMessages(){
   Serial3.write(0x00);
   Serial3.write(0x00);
   //right motors
-  address = 0x1BEEF009;
+  motors_tx_address = 0x1BEEF009;
   direction = (char)LoRa.read();
   mag = (int)LoRa.read();
-  switch(direction){
-    case 'f':
-      pwm=(mag * 27;      
-      break;
-    case 'b':
-      pwm=(mag * -27;      
-      break;
-    default:
-      break;
+  if (direction == 'f' ){
+      pwm=(mag * 27);
   }
-  address_ptr = (void*)(&address);
+  else if (direction =='b'){
+      pwm=(mag * -27);      
+  }
+  address_ptr = (void*)(&motors_tx_address);
   pwm_ptr = (void*)(&pwm);
   Serial1.write('!');
   Serial1.write(address_ptr[0]);
@@ -129,9 +122,10 @@ void forwardWheelMessages(){
   Serial3.write(0x00);
 }  
 
+long unsigned int arm_tx_address;
 void forwardArmMessages(){
   //Serial.write(0x12);
-  Serial.write(0x13);
+  //Serial.write(0x13);
 }
 
 void forwardCameraMessages(){}
