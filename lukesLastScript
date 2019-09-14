@@ -1,0 +1,140 @@
+#include <SPI.h>
+#include <LoRa.h>
+
+void setup() {
+  Serial1.begin(115200);
+  Serial3.begin(115200);
+  //Serial.println("LoRa Receiver");
+  // configure LoRa
+  LoRa.setPins(35, 37, 10);
+  LoRa.setSPIFrequency(1E6);
+  LoRa.setSpreadingFactor(7);
+  delay(500);
+
+  if (!LoRa.begin(433E6)) {
+    //Serial.println("Starting LoRa failed!");
+    while (1);
+  }
+}
+
+void loop() {
+  int packetSize = LoRa.parsePacket();
+  if (packetSize) {
+    switch ((char)LoRa.read()) {
+      case 'w':
+        forwardWheelMessages();
+        break;
+      case 'a':
+        forwardArmMessages();
+        break;
+      case 'c':
+        forwardCameraMessage();
+      case 'b':
+        forwardBoxMessages();
+      default:
+        break;
+    }
+  }
+}
+
+//who needs abstractions anyway
+long unsigned int motors_l_address;
+long unsigned int motors_r_address;
+char direction;
+int mag = 0;
+int pwml = 0;
+int pwmr = 0;
+void forwardWheelMessages() {
+
+  //left motors
+  motors_l_address = 0x1BEEF009;
+ // motors_l_address = 0x1BEEF005;
+  direction = (char)LoRa.read();
+  mag = LoRa.read() - 48;
+  if (direction == 'f' ) {
+    pwml = (mag * 27);
+    pwmr = (mag * 27);
+  }
+  else if (direction == 'b') {
+    pwml = (mag * -27);
+    pwmr = (mag * -27);
+  }
+  else if (direction == 'l') {
+    pwml = (mag * -27);
+    pwmr = (mag * 27);
+  }
+  else if (direction == 'r') {
+    pwml = (mag * 27);
+    pwmr = (mag * -27);
+  }
+  char* addressl_ptr = (void*)(&motors_l_address);
+  char* pwml_ptr = (void*)(&pwml);
+  char* pwmr_ptr = (void*)(&pwmr);
+  Serial1.write('!');
+  Serial1.write(addressl_ptr[0]);
+  Serial1.write(addressl_ptr[1]);
+  Serial1.write(addressl_ptr[2]);
+  Serial1.write(addressl_ptr[3]);
+  Serial1.write(pwml_ptr[0]);
+  Serial1.write(pwml_ptr[1]);
+  Serial1.write(0x00);
+  Serial1.write(0x00);
+  Serial1.write(pwml_ptr[0]);
+  Serial1.write(pwml_ptr[1]);
+  Serial1.write(0x00);
+  Serial1.write(0x00);
+  Serial3.write('!');
+  Serial3.write(addressl_ptr[0]);
+  Serial3.write(addressl_ptr[1]);
+  Serial3.write(addressl_ptr[2]);
+  Serial3.write(addressl_ptr[3]);
+  Serial3.write(pwml_ptr[0]);
+  Serial3.write(pwml_ptr[1]);
+  Serial3.write(0x00);
+  Serial3.write(0x00);
+  Serial3.write(pwml_ptr[0]);
+  Serial3.write(pwml_ptr[1]);
+  Serial3.write(0x00);
+  Serial3.write(0x00);
+  //right motors
+  motors_r_address = 0x1BEEF005;;
+  char* addressr_ptr = (void*)(&motors_r_address);
+  addressr_ptr = (void*)(&motors_r_address);
+  delay(50);
+  Serial1.write('!');
+  Serial1.write(addressr_ptr[0]);
+  Serial1.write(addressr_ptr[1]);
+  Serial1.write(addressr_ptr[2]);
+  Serial1.write(addressr_ptr[3]);
+  Serial1.write(pwmr_ptr[0]);
+  Serial1.write(pwmr_ptr[1]);
+  Serial1.write(0x00);
+  Serial1.write(0x00);
+  Serial1.write(pwmr_ptr[0]);
+  Serial1.write(pwmr_ptr[1]);
+  Serial1.write(0x00);
+  Serial1.write(0x00);
+  Serial3.write('!');
+  Serial3.write(addressr_ptr[0]);
+  Serial3.write(addressr_ptr[1]);
+  Serial3.write(addressr_ptr[2]);
+  Serial3.write(addressr_ptr[3]);
+  Serial3.write(pwmr_ptr[0]);
+  Serial3.write(pwmr_ptr[1]);
+  Serial3.write(0x00);
+  Serial3.write(0x00);
+  Serial3.write(pwmr_ptr[0]);
+  Serial3.write(pwmr_ptr[1]);
+  Serial3.write(0x00);
+  Serial3.write(0x00);
+}
+
+long unsigned int arm_tx_address;
+void forwardArmMessages() {
+  //Serial.write(0x12);
+  //Serial.write(0x13);
+}
+
+void forwardCameraMessage() {}
+
+void forwardBoxMessages() {}
