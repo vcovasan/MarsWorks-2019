@@ -62,7 +62,7 @@ void forwardWheelMessages(){
       pwmr=(mag * 27);
   }
   else if (direction =='r'){
-      pwml=(mag * 27)
+      pwml=(mag * 27);
       pwmr=(mag * -27);      
   }
   char* address_ptr = (void*)(&motors_tx_address);
@@ -131,6 +131,6 @@ void forwardArmMessages(){
   //Serial.write(0x13);
 }
 
-void forwardCameraMessages(){}
+void forwardCameraMessage(){}
 
-void forwardCollectionMessages(){}
+void forwardBoxMessages(){}
