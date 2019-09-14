@@ -90,8 +90,8 @@ void forwardWheelMessages(){
   Serial3.write(pwml_ptr[1]);
   Serial3.write(0x00);
   Serial3.write(0x00);
-  Serial3.write(pwmr_ptr[0]);
-  Serial3.write(pwmr_ptr[1]);
+  Serial3.write(pwml_ptr[0]);
+  Serial3.write(pwml_ptr[1]);
   Serial3.write(0x00);
   Serial3.write(0x00);
   //right motors
