@@ -4,7 +4,6 @@
 void setup() {
   Serial1.begin(115200);
   Serial3.begin(115200);
-  while (!Serial);
   //Serial.println("LoRa Receiver");
   // configure LoRa
   LoRa.setPins(35, 37, 10);
