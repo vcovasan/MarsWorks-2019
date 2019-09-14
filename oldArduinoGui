@@ -59,34 +59,36 @@ void loop() {
   char roverMode = ' ';
   char wheel = ' ';
   char joint = ' ';
-  if (Serial.available()) { // only send data back if data has been sent
+  if (Serial.available()) {
+    recvWithStartEndMarkers();
+    // only send data back if data has been sent
     char roverMode = Serial.read();// read the incoming data
     sendRoverMode(roverMode); //
-
+      
     // input 1 mode
-    if (roverMode == "w") {
-      while (Serial.read() != 'q') { // quit statement
-        delay(100);
-        char dir;
-        dir = Serial.read(); // input 2
-        if (dir == "f") {
-          char velocity = Serial.read(); // input 3
-          sendRoverWheelCommand(dir, velocity);
-        }
-        if (dir == "b") {
-          char velocity = Serial.read(); // input 3
-          sendRoverWheelCommand(dir, velocity);
-        }
-        if (dir == "l") {
-          char velocity = Serial.read(); // input 3
-          sendRoverWheelCommand(dir, velocity);
-        }
-        if (dir == "r") {
-          char velocity = Serial.read(); // input 3
-          sendRoverWheelCommand(wheel, velocity);
-        }
-      }
-    }
+//    if (roverMode == "w") {
+//      while (Serial.read() != 'q') { // quit statement
+//        delay(100);
+//        char dir;
+//        dir = Serial.read(); // input 2
+//        if (dir == "f") {
+//          char velocity = Serial.read(); // input 3
+//          sendRoverWheelCommand(dir, velocity);
+//        }
+//        if (dir == "b") {
+//          char velocity = Serial.read(); // input 3
+//          sendRoverWheelCommand(dir, velocity);
+//        }
+//        if (dir == "l") {
+//          char velocity = Serial.read(); // input 3
+//          sendRoverWheelCommand(dir, velocity);
+//        }
+//        if (dir == "r") {
+//          char velocity = Serial.read(); // input 3
+//          sendRoverWheelCommand(wheel, velocity);
+//        }
+//      }
+//    }
 
     if (roverMode == "a") {
       delay(50);
@@ -256,8 +258,8 @@ void recvWithStartEndMarkers() {
 char* extractCommandSequence() {
   static boolean recvInProgress = false;
   static byte ndx = 0;
-  char startMarker = '<';
-  char endMarker = '>';
+  char startMarker = '0xFD';
+  char endMarker = '0xFE';
   char rc;
 
   while (Serial.available() > 0 && newData == false) {
@@ -283,17 +285,17 @@ char* extractCommandSequence() {
       recvInProgress = true;
     }
   }
-  return *receivedChars;
+  sendNewData(receivedChars);
 }
 
-void sendNewData(char receivedChars[32]) {
+void sendNewData(char* receivedChars) {
   if (newData == true) {
     LoRa.beginPacket();
+    
 
-    Serial.print("This just in ... ");
-    Serial.println(receivedChars);
-
-    LoRa.print(receivedChars);
+    LoRa.print(receivedChars[0]);
+    LoRa.print(receivedChars[1]);
+    LoRa.print(receivedChars[2]);
     LoRa.endPacket();
 
     newData = false;
