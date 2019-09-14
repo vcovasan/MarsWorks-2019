@@ -38,7 +38,8 @@ void loop() {
 }
 
 //who needs abstractions anyway
-long unsigned int motors_tx_address;
+long unsigned int motors_l_address;
+long unsigned int motors_r_address;
 char direction;
 int mag = 0;
 int pwml = 0;
@@ -65,14 +66,14 @@ void forwardWheelMessages(){
       pwml=(mag * 27);
       pwmr=(mag * -27);      
   }
-  char* address_ptr = (void*)(&motors_tx_address);
+  char* addressl_ptr = (void*)(&motors_l_address);
   char* pwml_ptr = (void*)(&pwml);
   char* pwmr_ptr = (void*)(&pwmr);
   Serial1.write('!');
-  Serial1.write(address_ptr[0]);
-  Serial1.write(address_ptr[1]);
-  Serial1.write(address_ptr[2]);
-  Serial1.write(address_ptr[3]);
+  Serial1.write(addressl_ptr[0]);
+  Serial1.write(addressl_ptr[1]);
+  Serial1.write(addressl_ptr[2]);
+  Serial1.write(addressl_ptr[3]);
   Serial1.write(pwml_ptr[0]);
   Serial1.write(pwml_ptr[1]);
   Serial1.write(0x00);
@@ -95,13 +96,13 @@ void forwardWheelMessages(){
   Serial3.write(0x00);
   Serial3.write(0x00);
   //right motors
-  motors_tx_address = 0x1BEEF009;
-  address_ptr = (void*)(&motors_tx_address);
+  motors_r_address = 0x1BEEF009;
+  addressr_ptr = (void*)(&motors_r_address);
   Serial1.write('!');
-  Serial1.write(address_ptr[0]);
-  Serial1.write(address_ptr[1]);
-  Serial1.write(address_ptr[2]);
-  Serial1.write(address_ptr[3]);
+  Serial1.write(addressr_ptr[0]);
+  Serial1.write(addressr_ptr[1]);
+  Serial1.write(addressr_ptr[2]);
+  Serial1.write(addressr_ptr[3]);
   Serial1.write(pwmr_ptr[0]);
   Serial1.write(pwmr_ptr[1]);
   Serial1.write(0x00);
