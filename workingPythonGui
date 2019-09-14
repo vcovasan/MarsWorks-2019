@@ -346,7 +346,7 @@ while running:
 
         newVelocity = round(joystick[1] * 9)
         # Check if there is enough of a change to send a new PWM value to the wheels of the rover
-        if(((abs(newVelocity - lastVelocity)) > 1) and stick == LEFT_STICK):
+        if(((abs(newVelocity - lastVelocity)) > 0) and stick == LEFT_STICK):
             lastVelocity = newVelocity
             messageList.append(str(newVelocity))
             send_message(messageList) # Being used to send messages over serial
