@@ -18,7 +18,7 @@ void setup() {
 }
 
 void loop() {
-  testCAMFeeds()
+  testCAMFeed();
   //int packetSize = LoRa.parsePacket();
   //if (packetSize) {
   //  switch ((char)LoRa.read()) {
@@ -138,8 +138,36 @@ void forwardArmMessages(){
 
 long unsigned int cam_tx_address = 0x1BEEF018;
 char* cam_address_ptr = (void*)(&cam_tx_address);
+void testCAMFeed(){
+    Serial1.write('!');
+    Serial1.write(cam_address_ptr[0]);
+    Serial1.write(cam_address_ptr[1]);
+    Serial1.write(cam_address_ptr[2]);
+    Serial1.write(cam_address_ptr[3]);
+    Serial1.write('1');
+    Serial1.write('1');
+    Serial1.write(0x00);
+    Serial1.write(0x00);
+    Serial1.write(0x00);
+    Serial1.write(0x00);
+    Serial1.write(0x00);
+    Serial1.write(0x00);
+    Serial3.write('!');
+    Serial3.write(cam_address_ptr[0]);
+    Serial3.write(cam_address_ptr[1]);
+    Serial3.write(cam_address_ptr[2]);
+    Serial3.write(cam_address_ptr[3]);
+    Serial3.write('1');
+    Serial3.write('1');
+    Serial3.write(0x00);
+    Serial3.write(0x00);
+    Serial3.write(0x00);
+    Serial3.write(0x00);
+    Serial3.write(0x00);
+    Serial3.write(0x00);
+}
 void testCAMFeeds(){
-  for (int i = 0, i < 12, i++){
+  for (int i = 0; i < 12; i++){
     Serial1.write('!');
     Serial1.write(cam_address_ptr[0]);
     Serial1.write(cam_address_ptr[1]);
@@ -166,9 +194,10 @@ void testCAMFeeds(){
     Serial3.write(0x00);
     Serial3.write(0x00);
     Serial3.write(0x00);
-    delay(1000)
+    delay(1000);
   }
 }
+char cam;
 void forwardCameraMessage(){
   cam = (char)LoRa.read();
   Serial1.write('!');
