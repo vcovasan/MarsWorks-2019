@@ -41,31 +41,44 @@ void loop() {
 long unsigned int motors_tx_address;
 char direction;
 int mag = 0;
-int pwm = 0;
+int pwml = 0;
+int pwmr = 0;
 void forwardWheelMessages(){
+
   //left motors
   address = 0x1BEEF005;
   direction = (char)LoRa.read();
   mag = (int)LoRa.read();
   if (direction == 'f' ){
-      pwm=(mag * 27);      
+      pwml=(mag * 27);      
+      pwmr=(mag * 27);      
   }
   else if (direction =='b'){
-      pwm=(mag * -27);      
+      pwml=(mag * -27);      
+      pwmr=(mag * -27);
+  }
+  else if (direction =='l'){
+      pwml=(mag * -27);      
+      pwmr=(mag * 27);
+  }
+  else if (direction =='r'){
+      pwml=(mag * 27)
+      pwmr=(mag * -27);      
   }
   char* address_ptr = (void*)(&motors_tx_address);
-  char* pwm_ptr = (void*)(&pwm);
+  char* pwml_ptr = (void*)(&pwml);
+  char* pwmr_ptr = (void*)(&pwmr);
   Serial1.write('!');
   Serial1.write(address_ptr[0]);
   Serial1.write(address_ptr[1]);
   Serial1.write(address_ptr[2]);
   Serial1.write(address_ptr[3]);
-  Serial1.write(pwm_ptr[0]);
-  Serial1.write(pwm_ptr[1]);
+  Serial1.write(pwml_ptr[0]);
+  Serial1.write(pwml_ptr[1]);
   Serial1.write(0x00);
   Serial1.write(0x00);
-  Serial1.write(pwm_ptr[0]);
-  Serial1.write(pwm_ptr[1]);
+  Serial1.write(pwml_ptr[0]);
+  Serial1.write(pwml_ptr[1]);
   Serial1.write(0x00);
   Serial1.write(0x00);
   Serial3.write('!');
@@ -73,37 +86,28 @@ void forwardWheelMessages(){
   Serial3.write(address_ptr[1]);
   Serial3.write(address_ptr[2]);
   Serial3.write(address_ptr[3]);
-  Serial3.write(pwm_ptr[0]);
-  Serial3.write(pwm_ptr[1]);
+  Serial3.write(pwml_ptr[0]);
+  Serial3.write(pwml_ptr[1]);
   Serial3.write(0x00);
   Serial3.write(0x00);
-  Serial3.write(pwm_ptr[0]);
-  Serial3.write(pwm_ptr[1]);
+  Serial3.write(pwmr_ptr[0]);
+  Serial3.write(pwmr_ptr[1]);
   Serial3.write(0x00);
   Serial3.write(0x00);
   //right motors
   motors_tx_address = 0x1BEEF009;
-  direction = (char)LoRa.read();
-  mag = (int)LoRa.read();
-  if (direction == 'f' ){
-      pwm=(mag * 27);
-  }
-  else if (direction =='b'){
-      pwm=(mag * -27);      
-  }
   address_ptr = (void*)(&motors_tx_address);
-  pwm_ptr = (void*)(&pwm);
   Serial1.write('!');
   Serial1.write(address_ptr[0]);
   Serial1.write(address_ptr[1]);
   Serial1.write(address_ptr[2]);
   Serial1.write(address_ptr[3]);
-  Serial1.write(pwm_ptr[0]);
-  Serial1.write(pwm_ptr[1]);
+  Serial1.write(pwmr_ptr[0]);
+  Serial1.write(pwmr_ptr[1]);
   Serial1.write(0x00);
   Serial1.write(0x00);
-  Serial1.write(pwm_ptr[0]);
-  Serial1.write(pwm_ptr[1]);
+  Serial1.write(pwmr_ptr[0]);
+  Serial1.write(pwmr_ptr[1]);
   Serial1.write(0x00);
   Serial1.write(0x00);
   Serial3.write('!');
@@ -111,12 +115,12 @@ void forwardWheelMessages(){
   Serial3.write(address_ptr[1]);
   Serial3.write(address_ptr[2]);
   Serial3.write(address_ptr[3]);
-  Serial3.write(pwm_ptr[0]);
-  Serial3.write(pwm_ptr[1]);
+  Serial3.write(pwmr_ptr[0]);
+  Serial3.write(pwmr_ptr[1]);
   Serial3.write(0x00);
   Serial3.write(0x00);
-  Serial3.write(pwm_ptr[0]);
-  Serial3.write(pwm_ptr[1]);
+  Serial3.write(pwmr_ptr[0]);
+  Serial3.write(pwmr_ptr[1]);
   Serial3.write(0x00);
   Serial3.write(0x00);
 }  
