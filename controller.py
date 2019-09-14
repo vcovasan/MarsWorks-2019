@@ -118,7 +118,6 @@ def button_handler():
         return LT_STICK_BUTTON_PRESSED    
     elif(rt_stick_button == 1):
         return RT_STICK_BUTTON_PRESSED
-
     
 def joystick_handler():
 
@@ -162,35 +161,35 @@ def joystick_handler():
     else:
         return 0, 0
     
-def left_joystick_handler():
+# def left_joystick_handler():
     
-    left_stick_x, left_stick_y = controller.get_left_stick() 
-    # Left Joystick
-    if (left_stick_y > JOYSTICK_THRESHOLD):
-    	# Up
-    	return LEFT_STICK_UP, abs(left_stick_y)
+#     left_stick_x, left_stick_y = controller.get_left_stick() 
+#     # Left Joystick
+#     if (left_stick_y > JOYSTICK_THRESHOLD):
+#     	# Up
+#     	return LEFT_STICK_UP, abs(left_stick_y)
 
-    elif (left_stick_y < -JOYSTICK_THRESHOLD):
-    	# Up
-    	return LEFT_STICK_DOWN, abs(left_stick_y)
+#     elif (left_stick_y < -JOYSTICK_THRESHOLD):
+#     	# Up
+#     	return LEFT_STICK_DOWN, abs(left_stick_y)
 
-    else:
-        return 0, 0
+#     else:
+#         return 0, 0
 
-def right_joystick_handler():
+# def right_joystick_handler():
     
-    right_stick_x, right_stick_y = controller.get_right_stick()
-    # Right Joystick
-    if (right_stick_y > JOYSTICK_THRESHOLD):
-    	# Up
-    	return RIGHT_STICK_UP, abs(right_stick_y)
+#     right_stick_x, right_stick_y = controller.get_right_stick()
+#     # Right Joystick
+#     if (right_stick_y > JOYSTICK_THRESHOLD):
+#     	# Up
+#     	return RIGHT_STICK_UP, abs(right_stick_y)
 
-    elif (right_stick_y < -JOYSTICK_THRESHOLD):
-        # DOWN
-        return RIGHT_STICK_DOWN, abs(right_stick_y)
+#     elif (right_stick_y < -JOYSTICK_THRESHOLD):
+#         # DOWN
+#         return RIGHT_STICK_DOWN, abs(right_stick_y)
 
-    else:
-        return 0, 0
+#     else:
+#         return 0, 0
     
 # define the layout of the window here with all the buttons!
 def trigger_handler():
@@ -385,17 +384,6 @@ while running:
         print("Video Channel Switching Mode")
         pass
         
-        
-    
-
-    
-    
-
-    
-    
-    
-
-
 
 pygame.quit ()
 
